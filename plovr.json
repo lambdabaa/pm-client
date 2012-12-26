@@ -1,0 +1,29 @@
+{
+  "checks": {
+    "checkRegExp": "ERROR",
+    "checkTypes": "ERROR",
+    "checkVars": "ERROR",
+    "deprecated": "ERROR",
+    "fileoverviewTags": "ERROR",
+    "invalidCasts": "ERROR",
+    "missingProperties": "ERROR",
+    "nonStandardJsDocs": "ERROR",
+    "undefinedVars": "ERROR"
+  },
+  "debug": true,
+  "experimental-compiler-options": { "generateExports": true },
+  "externs": [
+    "//jquery-1.7.js",
+    "js/externs/bootstrap.js",
+    "js/externs/console.js",
+    "js/externs/localstorage.js",
+    "js/externs/path.js"
+  ],
+  "id": "pm",
+  "inputs": [
+    "js/app.js"
+  ],
+  "level": "VERBOSE",
+  "mode": "RAW",
+  "paths": [ "js" ]
+}
