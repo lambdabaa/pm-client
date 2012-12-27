@@ -16,6 +16,7 @@
     "//jquery-1.7.js",
     "js/externs/bootstrap.js",
     "js/externs/console.js",
+    "js/externs/json.js",
     "js/externs/localstorage.js",
     "js/externs/path.js"
   ],

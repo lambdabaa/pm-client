@@ -1,6 +1,7 @@
 
 goog.provide('pm.Routes');
 
+goog.require('pm.api.Client');
 goog.require('pm.ui.calendar.Calendar');
 goog.require('pm.ui.dashboard.Dashboard');
 goog.require('pm.ui.profile.Profile');
@@ -69,6 +70,7 @@ pm.Routes.prototype.enterDashboard = function() {
   } else {
     this.dashboard_ = new pm.ui.dashboard.Dashboard();
     this.dashboard_.render(this.container_);
+    pm.api.Client.getTasks(this.dashboard_.onTasks, this.dashboard_);
   }
 };
 
