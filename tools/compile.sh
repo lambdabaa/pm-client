@@ -17,9 +17,10 @@ function build_js_deps {
   java -jar tools/plovr-eba786b34df9.jar build plovr.json > "$PUBLIC/main.js"
   log_build_results "$PUBLIC/main.js"
 
-  echo "Building path.min.js..."
-  cp "$THIRD_PARTY/pathjs/path.min.js" $PUBLIC
-  log_build_results "$PUBLIC/path.min.js"
+  echo "Building bootstrap.min.js..."
+  cd "$THIRD_PARTY/bootstrap-release"
+  cp js/bootstrap.min.js $PUBLIC
+  log_build_results "$PUBLIC/bootstrap.min.js"
 
   echo "Building jquery.min.js..."
   cd "$THIRD_PARTY/jquery"
@@ -27,6 +28,10 @@ function build_js_deps {
   grunt
   cp dist/jquery.min.js $PUBLIC
   log_build_results "$PUBLIC/jquery.min.js"
+
+  echo "Building path.min.js..."
+  cp "$THIRD_PARTY/pathjs/path.min.js" $PUBLIC
+  log_build_results "$PUBLIC/path.min.js"
 
   echo ""
 }
