@@ -13,11 +13,22 @@ LESS_INCLUDE="less:$THIRD_PARTY/bootstrap/less"
 function build_js_deps {
   echo "Building javascript dependencies..."
 
-  # cp "$THIRD_PARTY/bootstrap/js/bootstrap-popover.js" $PUBLIC
-  # log_build_results "$PUBLIC/bootstrap-popover.js"
+  echo "Building main.js..."
+  java -jar tools/plovr-eba786b34df9.jar build plovr.json > "$PUBLIC/main.js"
+  log_build_results "$PUBLIC/main.js"
 
+  echo "Building path.min.js..."
   cp "$THIRD_PARTY/pathjs/path.min.js" $PUBLIC
   log_build_results "$PUBLIC/path.min.js"
+
+  echo "Building jquery.min.js..."
+  cd "$THIRD_PARTY/jquery"
+  git checkout -b 1.8-stable
+  grunt
+  cp dist/jquery.min.js $PUBLIC
+  log_build_results "$PUBLIC/jquery.min.js"
+
+  echo ""
 }
 
 
@@ -27,9 +38,9 @@ function build_less {
   files="$files $THIRD_PARTY/bootstrap/less/bootstrap.less"
   files="$files $THIRD_PARTY/bootstrap/less/responsive.less"
   cat $files > $LESS_SRC
-  echo $LESS_INCLUDE
   lessc --strict-imports --verbose --include-path=$LESS_INCLUDE $LESS_SRC $LESS_DST
   log_build_results $LESS_DST
+  echo ""
 }
 
 
@@ -37,12 +48,14 @@ function setup {
   echo "Initialize build environment..."
   mkdir -p $PUBLIC
   mkdir -p $BUILD
+  echo ""
 }
 
 
 function cleanup {
   echo "Discard build artifacts..."
   rm -rf $BUILD
+  echo ""
 }
 
 

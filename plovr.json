@@ -13,10 +13,10 @@
   "debug": true,
   "experimental-compiler-options": { "generateExports": true },
   "externs": [
-    "//jquery-1.7.js",
     "js/externs/bootstrap.js",
     "js/externs/console.js",
     "js/externs/json.js",
+    "js/externs/jquery-1.8.js",
     "js/externs/localstorage.js",
     "js/externs/path.js"
   ],
@@ -25,6 +25,6 @@
     "js/app.js"
   ],
   "level": "VERBOSE",
-  "mode": "RAW",
+  "mode": "ADVANCED",
   "paths": [ "js" ]
 }

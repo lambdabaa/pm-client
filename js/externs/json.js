@@ -2,7 +2,13 @@
 var JSON = {};
 
 
+/**
+ * @param {...} varargs
+ */
 JSON.parse = function(varargs) {};
 
 
-JSON.stringify = function() {};
+/**
+ * @param {...} varargs
+ */
+JSON.stringify = function(varargs) {};

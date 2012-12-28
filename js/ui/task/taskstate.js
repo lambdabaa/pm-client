@@ -16,7 +16,7 @@ pm.ui.task.TaskState = {
  * @return {number}
  */
 pm.ui.task.TaskState.serialize = function(state) {
-  var result = pm.ui.task.TaskState.TODO;
+  var result = 0;
   switch (state) {
     case pm.ui.task.TaskState.TODO:
       result = 0;
