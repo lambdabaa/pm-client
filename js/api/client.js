@@ -26,7 +26,7 @@ pm.api.Client.getTasks = function(callback, context) {
     console.log('abort');
     console.log(e);
   }, false);
-  request.open('GET', 'http://localhost:8080/tasks', true);
+  request.open('GET', 'http://holley.herokuapp.com/tasks', true);
   request.send();
 };
 
@@ -56,7 +56,7 @@ pm.api.Client.updateTask = function(taskId, task, callback, context) {
     console.log('abort');
     console.log(e);
   }, false);
-  request.open('PUT', 'http://localhost:8080/tasks/' + taskId, true);
+  request.open('PUT', 'http://holley.herokuapp.com/tasks/' + taskId, true);
   request.setRequestHeader('Content-Type', 'application/json');
   request.send(JSON.stringify(task));
 };
