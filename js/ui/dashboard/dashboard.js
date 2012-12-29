@@ -3,8 +3,8 @@ goog.provide('pm.ui.dashboard.Dashboard');
 
 goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
-goog.require('pm.ui.task.TaskEditor');
 goog.require('pm.ui.task.TaskGroup');
+goog.require('pm.ui.task.taskmodal');
 goog.require('pm.ui.task.TaskState');
 
 
@@ -35,10 +35,16 @@ pm.ui.dashboard.Dashboard = function() {
   this.right_ = null;
 
   /**
-   * @type {pm.ui.task.TaskEditor}
+   * @type {Element}
    * @private
    */
-  this.taskEditor_ = null;
+  this.addTaskButton_ = null;
+
+  /**
+   * @type {Element}
+   * @private
+   */
+  this.modal_ = null;
 };
 goog.inherits(pm.ui.dashboard.Dashboard, goog.ui.Component);
 
@@ -80,17 +86,47 @@ pm.ui.dashboard.Dashboard.prototype.enterDocument = function() {
   goog.dom.appendChild(element, h3);
   this.right_.render(element);
 
-  // Task editor
-  // this.taskEditor_ = new pm.ui.task.TaskEditor();
-  // element = goog.dom.createDom('div');
-  // this.taskEditor_.render(element);
+  // Controls
+  element = goog.dom.createDom('div');
+  goog.dom.classes.add(element, 'span9');
+  goog.dom.classes.add(element, 'dashboard-controls');
+  goog.dom.classes.add(element, 'well');
+  goog.dom.appendChild(this.element_, element);
 
-  goog.dom.classes.add(this.element_, 'task-group-container');
+  // Add task button
+  this.addTaskButton_ = goog.dom.createDom('div');
+  goog.dom.classes.add(this.addTaskButton_, 'btn');
+  goog.dom.classes.add(this.addTaskButton_, 'btn-primary');
+  this.addTaskButton_.innerHTML = '+ New task';
+  goog.dom.appendChild(element, this.addTaskButton_);
+  goog.events.listen(this.addTaskButton_, goog.events.EventType.CLICK,
+      goog.bind(this.onAddTaskButtonClick_, this));
+
+  goog.dom.classes.add(this.element_, 'dashboard');
 };
 
 
 /** @inheritDoc */
 pm.ui.dashboard.Dashboard.prototype.exitDocument = function() {
+  goog.events.unlisten(this.addTaskButton_, goog.events.EventType.CLICK,
+      goog.bind(this.onAddTaskButtonClick_, this));
+
+  // unlisten to things that close this modal
+  var closers = goog.dom.getElementsByClass('modal-close');
+  for (var i = 0; i < closers.length; i++) {
+    var closer = closers[i];
+    goog.events.unlisten(closer, goog.events.EventType.CLICK,
+        goog.bind(this.onModalClose_, this));
+  }
+
+  // unlisten to things that save the data
+  var savers = goog.dom.getElementsByClass('modal-save');
+  for (var i = 0; i < savers.length; i++) {
+    var saver = savers[i];
+    goog.events.unlisten(saver, goog.events.EventType.CLICK,
+        goog.bind(this.onModalSave_, this));
+  }
+
   goog.dom.removeChildren(this.element_);
 };
 
@@ -125,4 +161,69 @@ pm.ui.dashboard.Dashboard.prototype.addTask = function(task) {
       this.right_.addTask(task);
       break;
   }
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.dashboard.Dashboard.prototype.onAddTaskButtonClick_ = function(e) {
+  if (this.modal_) {
+    goog.style.showElement(goog.dom.getElementByClass('modal'), true);
+  } else {
+    this.modal_ = goog.dom.createDom('div');
+    goog.dom.classes.add(this.modal_, 'modal');
+    soy.renderElement(this.modal_, pm.ui.task.taskmodal.create);
+    goog.dom.appendChild(document.body, this.modal_);
+
+    // Listen to things that close this modal
+    var closers = goog.dom.getElementsByClass('modal-close');
+    for (var i = 0; i < closers.length; i++) {
+      var closer = closers[i];
+      goog.events.listen(closer, goog.events.EventType.CLICK,
+          goog.bind(this.onModalClose_, this));
+    }
+
+    // Listen to things that save the data
+    var savers = goog.dom.getElementsByClass('modal-save');
+    for (var i = 0; i < savers.length; i++) {
+      var saver = savers[i];
+      goog.events.listen(saver, goog.events.EventType.CLICK,
+          goog.bind(this.onModalSave_, this));
+    }
+  }
+
+  var modalBackdrop = goog.dom.getElementByClass('modal-backdrop');
+  if (modalBackdrop) {
+    console.log('Showing backdrop');
+    goog.style.showElement(modalBackdrop, true);
+  } else {
+    console.log('Creating backdrop');
+    goog.dom.appendChild(
+        document.body, soy.renderAsFragment(pm.ui.task.taskmodal.backdrop));
+  }
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.dashboard.Dashboard.prototype.onModalClose_ = function(e) {
+  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.dashboard.Dashboard.prototype.onModalSave_ = function(e) {
+  var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  var task = pm.ui.task.Task.create(textarea.value,
+      [this.left_.dragdrop, this.center_.dragdrop, this.right_.dragdrop]);
+  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
 };

@@ -1,0 +1,48 @@
+
+{namespace pm.ui.task.taskmodal}
+
+
+
+/**
+ * A simple form to edit the text in a task.
+ * @param body the existing text for the task.
+ */
+{template .edit}
+  <div class="modal-header">
+    <button type="button" class="close modal-close">&times;</button>
+    <h3>Task Editor</h3>
+  </div>
+  <div class="modal-body">
+    <textarea class="task-editor-textarea">{$body}</textarea>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-danger modal-close">Cancel</a>
+    <a class="btn btn-primary modal-save">Save changes</a>
+  </div>
+{/template}
+
+
+/**
+ * A simple form to create the text in a task.
+ */
+{template .create}
+  <div class="modal-header">
+    <button type="button" class="close modal-close">&times;</button>
+    <h3>Task Editor</h3>
+  </div>
+  <div class="modal-body">
+    <textarea class="task-editor-textarea" placeholder="What's next?"></textarea>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-danger modal-close">Cancel</a>
+    <a class="btn btn-primary modal-save">Save</a>
+  </div>
+{/template}
+
+
+/**
+ * A backdrop to the modal.
+ */
+{template .backdrop}
+  <div class="modal-backdrop fade in"></div>
+{/template}

@@ -1,11 +1,16 @@
 
 goog.provide('pm.ui.task.Task');
 
+goog.require('goog.events');
 goog.require('goog.fx.AbstractDragDrop');
 goog.require('goog.fx.DragDrop');
 goog.require('goog.ui.Component');
 goog.require('pm.api.Client');
+goog.require('pm.ui.task.TaskDeleteButton');
+goog.require('pm.ui.task.TaskEditButton');
 goog.require('pm.ui.task.TaskState');
+goog.require('pm.ui.task.taskmodal');
+goog.require('soy');
 
 
 
@@ -39,8 +44,35 @@ pm.ui.task.Task = function(response, state, text, targets) {
    * @type {Array.<goog.fx.DragDrop>}
    */
   this.targets = targets;
+
+  /**
+   * @type {pm.ui.task.TaskDeleteButton}
+   * @private
+   */
+  this.deleteButton_ = new pm.ui.task.TaskDeleteButton();
+
+  /**
+   * @type {pm.ui.task.TaskEditButton}
+   * @private
+   */
+  this.editButton_ = new pm.ui.task.TaskEditButton();
+
+  /**
+   * @type {Element}
+   * @private
+   */
+  this.modal_;
 };
 goog.inherits(pm.ui.task.Task, goog.ui.Component);
+
+
+/**
+ * @param {string} text
+ * @param {Array.<goog.fx.DragDrop>} targets
+ */
+pm.ui.task.Task.create = function(text, targets) {
+  // TODO(gareth)
+};
 
 
 /**
@@ -48,9 +80,7 @@ goog.inherits(pm.ui.task.Task, goog.ui.Component);
  * @return {pm.ui.task.Task}
  */
 pm.ui.task.Task.responseToTask = function(response) {
-  var text = response.title;
-  text += '<br />'
-  text += response.description;
+  var text = response.body;
   var state = pm.ui.task.TaskState.deserialize(response.state);
   return new pm.ui.task.Task(response, state, text, []);
 };
@@ -58,13 +88,24 @@ pm.ui.task.Task.responseToTask = function(response) {
 
 /** @inheritDoc */
 pm.ui.task.Task.prototype.enterDocument = function() {
-  this.element_.innerHTML = this.text;
+  var button;
+  button = goog.dom.createDom('div');
+  goog.dom.classes.add(button, 'task-delete-button');
+  this.deleteButton_.render(button);
+  goog.dom.appendChild(this.element_, button);
+
+  button = goog.dom.createDom('div');
+  goog.dom.classes.add(button, 'task-edit-button');
+  this.editButton_.render(button);
+  goog.dom.appendChild(this.element_, button);
+
+  this.element_.innerHTML += this.text;
+
   goog.dom.classes.add(this.element_, 'task');
   $(this.element_).tooltip({
-    placement: 'bottom',
     title: 'Drag me to change my status!',
     delay: {
-      show: 1500,
+      show: 2500,
       hide: 0
     }
   });
@@ -77,11 +118,44 @@ pm.ui.task.Task.prototype.enterDocument = function() {
   source.init();
 
   this.setColor_();
+
+  goog.events.listen(
+      goog.dom.getElementByClass('task-delete-button'),
+      goog.events.EventType.CLICK,
+      goog.bind(this.onDeleteButtonClick_, this));
+  goog.events.listen(
+      goog.dom.getElementByClass('task-edit-button'),
+      goog.events.EventType.CLICK,
+      goog.bind(this.onEditButtonClick_, this));
 };
 
 
 /** @inheritDoc */
 pm.ui.task.Task.prototype.exitDocument = function() {
+  goog.events.unlisten(
+      goog.dom.getElementByClass('task-delete-button'),
+      goog.events.EventType.CLICK,
+      goog.bind(this.onDeleteButtonClick_, this));
+  goog.events.unlisten(
+      goog.dom.getElementByClass('task-edit-button'),
+      goog.events.EventType.CLICK,
+      goog.bind(this.onEditButtonClick_, this));
+
+  // unlisten to things that close this modal
+  var closers = goog.dom.getElementsByClass('modal-close');
+  for (var i = 0; i < closers.length; i++) {
+    var closer = closers[i];
+    goog.events.unlisten(closer, goog.events.EventType.CLICK,
+        goog.bind(this.onModalClose_, this));
+  }
+
+  // unlisten to things that save the data
+  var savers = goog.dom.getElementsByClass('modal-save');
+  for (var i = 0; i < savers.length; i++) {
+    var saver = savers[i];
+    goog.events.unlisten(saver, goog.events.EventType.CLICK,
+        goog.bind(this.onModalSave_, this));
+  }
 };
 
 
@@ -96,6 +170,42 @@ pm.ui.task.Task.prototype.setState = function(state) {
     // TODO(gareth): Add a callback here that informs the user if the
     // sync with the server failed.
     this.response.state = pm.ui.task.TaskState.serialize(state);
+    pm.api.Client.updateTask(this.response.id, this.response, null, null);
+  }
+};
+
+
+/**
+ * @param {string} text
+ */
+pm.ui.task.Task.prototype.setText = function(text) {
+  if (text != this.text) {
+    // Stop listening to buttons
+    goog.events.unlisten(
+        goog.dom.getElementByClass('task-delete-button'),
+        goog.events.EventType.CLICK,
+        goog.bind(this.onDeleteButtonClick_, this));
+    goog.events.unlisten(
+        goog.dom.getElementByClass('task-edit-button'),
+        goog.events.EventType.CLICK,
+        goog.bind(this.onEditButtonClick_, this));
+
+    this.element_.innerHTML =
+        this.element_.innerHTML.replace(this.text, text);
+    this.text = text;
+
+    // Listen to buttons again
+    goog.events.listen(
+        goog.dom.getElementByClass('task-delete-button'),
+        goog.events.EventType.CLICK,
+        goog.bind(this.onDeleteButtonClick_, this));
+    goog.events.listen(
+        goog.dom.getElementByClass('task-edit-button'),
+        goog.events.EventType.CLICK,
+        goog.bind(this.onEditButtonClick_, this));
+
+    // TODO(gareth): Sync with server
+    this.response.body = text;
     pm.api.Client.updateTask(this.response.id, this.response, null, null);
   }
 };
@@ -120,4 +230,79 @@ pm.ui.task.Task.prototype.setColor_ = function() {
       goog.dom.classes.add(this.element_, 'task-done');
       break;
   }
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.task.Task.prototype.onDeleteButtonClick_ = function(e) {
+  goog.style.showElement(this.element_, false);
+  pm.api.Client.destroyTask(this.response.id, null, null);
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.task.Task.prototype.onEditButtonClick_ = function(e) {
+  if (this.modal_) {
+    goog.style.showElement(goog.dom.getElementByClass('modal'), true);
+  } else {
+    this.modal_ = goog.dom.createDom('div');
+    goog.dom.classes.add(this.modal_, 'modal');
+    soy.renderElement(this.modal_, pm.ui.task.taskmodal.edit, { body: this.text });
+    goog.dom.appendChild(document.body, this.modal_);
+
+    // Listen to things that close this modal
+    var closers = goog.dom.getElementsByClass('modal-close');
+    for (var i = 0; i < closers.length; i++) {
+      var closer = closers[i];
+      goog.events.listen(closer, goog.events.EventType.CLICK,
+          goog.bind(this.onModalClose_, this));
+    }
+
+    // Listen to things that save the data
+    var savers = goog.dom.getElementsByClass('modal-save');
+    for (var i = 0; i < savers.length; i++) {
+      var saver = savers[i];
+      goog.events.listen(saver, goog.events.EventType.CLICK,
+          goog.bind(this.onModalSave_, this));
+    }
+  }
+
+  var modalBackdrop = goog.dom.getElementByClass('modal-backdrop');
+  if (modalBackdrop) {
+    goog.style.showElement(modalBackdrop, true);
+  } else {
+    goog.dom.appendChild(
+        document.body, soy.renderAsFragment(pm.ui.task.taskmodal.backdrop));
+  }
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.task.Task.prototype.onModalClose_ = function(e) {
+  var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  textarea.value = textarea.innerHTML;
+  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
+};
+
+
+/**
+ * @param {goog.events.Event} e
+ * @private
+ */
+pm.ui.task.Task.prototype.onModalSave_ = function(e) {
+  var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  textarea.innerHTML = textarea.value;
+  this.setText(textarea.value);
+  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
 };
