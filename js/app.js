@@ -1,14 +1,11 @@
 
 goog.provide('pm.App');
 
-goog.require('goog.dom');
 goog.require('pm.Routes');
 
 
 
-/**
- * @export
- */
+/** @export */
 pm.App.init = function() {
   // TODO(gareth): Hack pathjs to pass context to Path.route.core functions
   var routes = new pm.Routes();

@@ -4,6 +4,7 @@ goog.provide('pm.ui.dashboard.Dashboard');
 goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
 goog.require('pm.ui.task.TaskGroup');
+goog.require('pm.ui.task.taskgroup');
 goog.require('pm.ui.task.taskmodal');
 goog.require('pm.ui.task.TaskState');
 
@@ -34,6 +35,14 @@ pm.ui.dashboard.Dashboard = function() {
    */
   this.right_ = null;
 
+  // TODO(gareth): Move add task button and the modal into a control panel
+  // that abstracts this stuff
+  // /**
+  //  * @type {pm.ui.dashboard.ControlPanel}
+  //  * @private
+  //  */
+  // this.controlPanel_ = null;
+
   /**
    * @type {Element}
    * @private
@@ -41,6 +50,7 @@ pm.ui.dashboard.Dashboard = function() {
   this.addTaskButton_ = null;
 
   /**
+   * The modal that's tied to the add task button.
    * @type {Element}
    * @private
    */
@@ -51,43 +61,19 @@ goog.inherits(pm.ui.dashboard.Dashboard, goog.ui.Component);
 
 /** @inheritDoc */
 pm.ui.dashboard.Dashboard.prototype.enterDocument = function() {
-  var element, h3;
+  goog.dom.classes.add(this.element_, 'dashboard');
 
-  // Left
-  this.left_ = new pm.ui.task.TaskGroup(
-      pm.ui.task.TaskState.TODO);
-  element = goog.dom.createDom('div');
-  goog.dom.classes.add(element, 'span3');
-  goog.dom.appendChild(this.element_, element);
-  h3 = goog.dom.createDom('h3');
-  h3.innerHTML = 'To Do';
-  goog.dom.appendChild(element, h3);
-  this.left_.render(element);
+  this.left_ = new pm.ui.task.TaskGroup(pm.ui.task.TaskState.TODO);
+  this.left_.render(this.createTaskGroup_('To Do'));
 
-  // Center
-  this.center_ = new pm.ui.task.TaskGroup(
-      pm.ui.task.TaskState.IN_PROGRESS);
-  element = goog.dom.createDom('div');
-  goog.dom.classes.add(element, 'span3');
-  goog.dom.appendChild(this.element_, element);
-  h3 = goog.dom.createDom('h3');
-  h3.innerHTML = 'In Progress';
-  goog.dom.appendChild(element, h3);
-  this.center_.render(element);
+  this.center_ = new pm.ui.task.TaskGroup(pm.ui.task.TaskState.IN_PROGRESS);
+  this.center_.render(this.createTaskGroup_('In Progress'));
 
-  // Right
-  this.right_ = new pm.ui.task.TaskGroup(
-      pm.ui.task.TaskState.DONE);
-  element = goog.dom.createDom('div');
-  goog.dom.classes.add(element, 'span3');
-  goog.dom.appendChild(this.element_, element);
-  h3 = goog.dom.createDom('h3');
-  h3.innerHTML = 'Done';
-  goog.dom.appendChild(element, h3);
-  this.right_.render(element);
+  this.right_ = new pm.ui.task.TaskGroup(pm.ui.task.TaskState.DONE);
+  this.right_.render(this.createTaskGroup_('Done'));
 
   // Controls
-  element = goog.dom.createDom('div');
+  var element = goog.dom.createDom('div');
   goog.dom.classes.add(element, 'span9');
   goog.dom.classes.add(element, 'dashboard-controls');
   goog.dom.classes.add(element, 'well');
@@ -101,8 +87,6 @@ pm.ui.dashboard.Dashboard.prototype.enterDocument = function() {
   goog.dom.appendChild(element, this.addTaskButton_);
   goog.events.listen(this.addTaskButton_, goog.events.EventType.CLICK,
       goog.bind(this.onAddTaskButtonClick_, this));
-
-  goog.dom.classes.add(this.element_, 'dashboard');
 };
 
 
@@ -232,9 +216,26 @@ pm.ui.dashboard.Dashboard.prototype.onModalClose_ = function(e) {
  */
 pm.ui.dashboard.Dashboard.prototype.onModalSave_ = function(e) {
   var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  // TODO(gareth): Support offline use case
   pm.api.Client.createTask(
       { body: textarea.value, state: 0 }, this.onTask, this);
   textarea.value = '';
   goog.style.showElement(goog.dom.getElement('task-modal-create'), false);
   goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
+};
+
+
+/**
+ * @param {string} heading
+ * @return {Element}
+ * @private
+ */
+pm.ui.dashboard.Dashboard.prototype.createTaskGroup_ = function(heading) {
+  var element = goog.dom.createDom('div');
+  goog.dom.classes.add(element, 'span3');
+  goog.dom.appendChild(this.element_, element);
+  var h3 = goog.dom.createDom('h3');
+  h3.innerHTML = heading;
+  goog.dom.appendChild(element, h3);
+  return element;
 };
