@@ -12,7 +12,7 @@ pm.service.calendar.CalendarService.getCurrentMonth = function() {
   // for (current = date.getDate(); current > 0; current--) {
   //   start = (start + 6) % 7;
   // }
-  // 
+  //
   // return new pm.service.calendar.Month();
 };
 

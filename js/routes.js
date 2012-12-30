@@ -103,7 +103,7 @@ pm.Routes.prototype.enterProgress = function() {
   if (this.progress_) {
     goog.style.showElement(this.progress_.element_, true);
   } else {
-    this.progress_ = new pm.ui.progress.Progress()
+    this.progress_ = new pm.ui.progress.Progress();
     this.progress_.render(this.container_);
   }
 };

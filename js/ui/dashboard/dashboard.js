@@ -4,9 +4,9 @@ goog.provide('pm.ui.dashboard.Dashboard');
 goog.require('goog.events.Event');
 goog.require('goog.ui.Component');
 goog.require('pm.ui.task.TaskGroup');
+goog.require('pm.ui.task.TaskState');
 goog.require('pm.ui.task.taskgroup');
 goog.require('pm.ui.task.taskmodal');
-goog.require('pm.ui.task.TaskState');
 
 
 

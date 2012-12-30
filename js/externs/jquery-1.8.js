@@ -15,7 +15,7 @@
  */
 
 /**
- * @fileoverview Externs for jQuery 1.8.2
+ * @fileoverview Externs for jQuery 1.8.2.
  *
  * Note that some functions use different return types depending on the number
  * of parameters passed in. In these cases, you may need to annotate the type
@@ -379,13 +379,13 @@ $.browser.webkit;
  * @constructor
  * @private
  */
-jQuery.callbacks = function () {};
+jQuery.callbacks = function() {};
 
 /**
  * @param {string=} flags
  * @return {jQuery.callbacks}
  */
-jQuery.Callbacks = function (flags) {};
+jQuery.Callbacks = function(flags) {};
 
 /** @param {function()} callbacks */
 jQuery.callbacks.prototype.add = function(callbacks) {};
@@ -1275,7 +1275,7 @@ jQuery.prototype.jquery;
  * @private
  * @see http://api.jquery.com/jQuery.ajax/#jqXHR
  */
-jQuery.jqXHR = function () {};
+jQuery.jqXHR = function() {};
 
 /**
  * @override
@@ -1291,7 +1291,7 @@ jQuery.jqXHR.prototype.always =
  * @param {function()} callback
  * @return {jQuery.jqXHR}
 */
-jQuery.jqXHR.prototype.complete = function (callback) {};
+jQuery.jqXHR.prototype.complete = function(callback) {};
 
 /**
  * @override
@@ -1305,7 +1305,7 @@ jQuery.jqXHR.prototype.done = function(doneCallbacks) {};
  * @param {function()} callback
  * @return {jQuery.jqXHR}
 */
-jQuery.jqXHR.prototype.error = function (callback) {};
+jQuery.jqXHR.prototype.error = function(callback) {};
 
 /**
  * @override
@@ -1318,7 +1318,7 @@ jQuery.jqXHR.prototype.fail = function(failCallbacks) {};
  * @deprecated
  * @override
  */
-jQuery.jqXHR.prototype.onreadystatechange = function (callback) {};
+jQuery.jqXHR.prototype.onreadystatechange = function(callback) {};
 
 /**
  * @param {function()=} doneFilter
@@ -1334,7 +1334,7 @@ jQuery.jqXHR.prototype.pipe =
  * @param {function()} callback
  * @return {jQuery.jqXHR}
 */
-jQuery.jqXHR.prototype.success = function (callback) {};
+jQuery.jqXHR.prototype.success = function(callback) {};
 
 /**
  * @override
@@ -1736,7 +1736,7 @@ jQuery.prototype.promise = function(type, target) {};
  * @private
  * @see http://api.jquery.com/Types/#Promise
  */
-jQuery.Promise = function () {};
+jQuery.Promise = function() {};
 
 /**
  * @param {jQueryCallback} alwaysCallbacks
