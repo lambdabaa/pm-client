@@ -117,6 +117,7 @@ pm.api.Client.destroyTask = function(taskId, callback, context) {
     console.log('abort');
     console.log(e);
   }, false);
-  request.open('DELETE', pm.api.Config.apiBaseUrl() + '/tasks/' + taskId, false);
+  request.open(
+      'DELETE', pm.api.Config.apiBaseUrl() + '/tasks/' + taskId, false);
   request.send();
 };
