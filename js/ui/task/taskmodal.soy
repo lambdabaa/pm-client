@@ -5,19 +5,20 @@
 
 /**
  * A simple form to edit the text in a task.
+ * @param id the id of the task.
  * @param body the existing text for the task.
  */
 {template .edit}
   <div class="modal-header">
-    <button type="button" class="close modal-close">&times;</button>
+    <button type="button" class="close modal-close-{$id}">&times;</button>
     <h3>Task Editor</h3>
   </div>
   <div class="modal-body">
-    <textarea class="task-editor-textarea">{$body}</textarea>
+    <textarea class="task-editor-textarea-{$id}">{$body}</textarea>
   </div>
   <div class="modal-footer">
-    <a class="btn btn-danger modal-close">Cancel</a>
-    <a class="btn btn-primary modal-save">Save changes</a>
+    <a class="btn btn-danger modal-close-{$id}">Cancel</a>
+    <a class="btn btn-primary modal-save-{$id}">Save changes</a>
   </div>
 {/template}
 
@@ -27,15 +28,15 @@
  */
 {template .create}
   <div class="modal-header">
-    <button type="button" class="close modal-close">&times;</button>
+    <button type="button" class="close modal-close-create">&times;</button>
     <h3>Task Editor</h3>
   </div>
   <div class="modal-body">
     <textarea class="task-editor-textarea" placeholder="What's next?"></textarea>
   </div>
   <div class="modal-footer">
-    <a class="btn btn-danger modal-close">Cancel</a>
-    <a class="btn btn-primary modal-save">Save</a>
+    <a class="btn btn-danger modal-close-create">Cancel</a>
+    <a class="btn btn-primary modal-save-create">Save</a>
   </div>
 {/template}
 

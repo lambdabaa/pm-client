@@ -67,15 +67,6 @@ goog.inherits(pm.ui.task.Task, goog.ui.Component);
 
 
 /**
- * @param {string} text
- * @param {Array.<goog.fx.DragDrop>} targets
- */
-pm.ui.task.Task.create = function(text, targets) {
-  // TODO(gareth)
-};
-
-
-/**
  * @param {Object} response
  * @return {pm.ui.task.Task}
  */
@@ -91,11 +82,13 @@ pm.ui.task.Task.prototype.enterDocument = function() {
   var button;
   button = goog.dom.createDom('div');
   goog.dom.classes.add(button, 'task-delete-button');
+  goog.dom.classes.add(button, 'task-delete-' + this.response.id);
   this.deleteButton_.render(button);
   goog.dom.appendChild(this.element_, button);
 
   button = goog.dom.createDom('div');
   goog.dom.classes.add(button, 'task-edit-button');
+  goog.dom.classes.add(button, 'task-edit-' + this.response.id);
   this.editButton_.render(button);
   goog.dom.appendChild(this.element_, button);
 
@@ -120,11 +113,11 @@ pm.ui.task.Task.prototype.enterDocument = function() {
   this.setColor_();
 
   goog.events.listen(
-      goog.dom.getElementByClass('task-delete-button'),
+      goog.dom.getElementByClass('task-delete-' + this.response.id),
       goog.events.EventType.CLICK,
       goog.bind(this.onDeleteButtonClick_, this));
   goog.events.listen(
-      goog.dom.getElementByClass('task-edit-button'),
+      goog.dom.getElementByClass('task-edit-' + this.response.id),
       goog.events.EventType.CLICK,
       goog.bind(this.onEditButtonClick_, this));
 };
@@ -133,16 +126,17 @@ pm.ui.task.Task.prototype.enterDocument = function() {
 /** @inheritDoc */
 pm.ui.task.Task.prototype.exitDocument = function() {
   goog.events.unlisten(
-      goog.dom.getElementByClass('task-delete-button'),
+      goog.dom.getElementByClass('task-delete-' + this.response.id),
       goog.events.EventType.CLICK,
       goog.bind(this.onDeleteButtonClick_, this));
   goog.events.unlisten(
-      goog.dom.getElementByClass('task-edit-button'),
+      goog.dom.getElementByClass('task-edit-' + this.response.id),
       goog.events.EventType.CLICK,
       goog.bind(this.onEditButtonClick_, this));
 
   // unlisten to things that close this modal
-  var closers = goog.dom.getElementsByClass('modal-close');
+  var closers =
+      goog.dom.getElementsByClass('modal-close-' + this.response.id);
   for (var i = 0; i < closers.length; i++) {
     var closer = closers[i];
     goog.events.unlisten(closer, goog.events.EventType.CLICK,
@@ -150,7 +144,8 @@ pm.ui.task.Task.prototype.exitDocument = function() {
   }
 
   // unlisten to things that save the data
-  var savers = goog.dom.getElementsByClass('modal-save');
+  var savers =
+      goog.dom.getElementsByClass('modal-save-' + this.response.id);
   for (var i = 0; i < savers.length; i++) {
     var saver = savers[i];
     goog.events.unlisten(saver, goog.events.EventType.CLICK,
@@ -182,11 +177,11 @@ pm.ui.task.Task.prototype.setText = function(text) {
   if (text != this.text) {
     // Stop listening to buttons
     goog.events.unlisten(
-        goog.dom.getElementByClass('task-delete-button'),
+        goog.dom.getElementByClass('task-delete-' + this.response.id),
         goog.events.EventType.CLICK,
         goog.bind(this.onDeleteButtonClick_, this));
     goog.events.unlisten(
-        goog.dom.getElementByClass('task-edit-button'),
+        goog.dom.getElementByClass('task-edit-' + this.response.id),
         goog.events.EventType.CLICK,
         goog.bind(this.onEditButtonClick_, this));
 
@@ -196,11 +191,11 @@ pm.ui.task.Task.prototype.setText = function(text) {
 
     // Listen to buttons again
     goog.events.listen(
-        goog.dom.getElementByClass('task-delete-button'),
+        goog.dom.getElementByClass('task-delete-' + this.response.id),
         goog.events.EventType.CLICK,
         goog.bind(this.onDeleteButtonClick_, this));
     goog.events.listen(
-        goog.dom.getElementByClass('task-edit-button'),
+        goog.dom.getElementByClass('task-edit-' + this.response.id),
         goog.events.EventType.CLICK,
         goog.bind(this.onEditButtonClick_, this));
 
@@ -249,15 +244,22 @@ pm.ui.task.Task.prototype.onDeleteButtonClick_ = function(e) {
  */
 pm.ui.task.Task.prototype.onEditButtonClick_ = function(e) {
   if (this.modal_) {
-    goog.style.showElement(goog.dom.getElementByClass('modal'), true);
+    // Just show the modal
+    goog.style.showElement(this.modal_, true);
   } else {
-    this.modal_ = goog.dom.createDom('div');
+    // Build the modal
+    this.modal_ =
+        goog.dom.createDom('div', { id: 'task-modal-' + this.response.id });
     goog.dom.classes.add(this.modal_, 'modal');
-    soy.renderElement(this.modal_, pm.ui.task.taskmodal.edit, { body: this.text });
+    soy.renderElement(this.modal_, pm.ui.task.taskmodal.edit, {
+        id: this.response.id,
+        body: this.text
+    });
     goog.dom.appendChild(document.body, this.modal_);
 
     // Listen to things that close this modal
-    var closers = goog.dom.getElementsByClass('modal-close');
+    var closers =
+        goog.dom.getElementsByClass('modal-close-' + this.response.id);
     for (var i = 0; i < closers.length; i++) {
       var closer = closers[i];
       goog.events.listen(closer, goog.events.EventType.CLICK,
@@ -265,7 +267,8 @@ pm.ui.task.Task.prototype.onEditButtonClick_ = function(e) {
     }
 
     // Listen to things that save the data
-    var savers = goog.dom.getElementsByClass('modal-save');
+    var savers =
+        goog.dom.getElementsByClass('modal-save-' + this.response.id);
     for (var i = 0; i < savers.length; i++) {
       var saver = savers[i];
       goog.events.listen(saver, goog.events.EventType.CLICK,
@@ -288,9 +291,10 @@ pm.ui.task.Task.prototype.onEditButtonClick_ = function(e) {
  * @private
  */
 pm.ui.task.Task.prototype.onModalClose_ = function(e) {
-  var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  var textarea =
+      goog.dom.getElementByClass('task-editor-textarea-' + this.response.id);
   textarea.value = textarea.innerHTML;
-  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(this.modal_, false);
   goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
 };
 
@@ -300,9 +304,10 @@ pm.ui.task.Task.prototype.onModalClose_ = function(e) {
  * @private
  */
 pm.ui.task.Task.prototype.onModalSave_ = function(e) {
-  var textarea = goog.dom.getElementByClass('task-editor-textarea');
+  var textarea =
+      goog.dom.getElementByClass('task-editor-textarea-' + this.response.id);
   textarea.innerHTML = textarea.value;
   this.setText(textarea.value);
-  goog.style.showElement(goog.dom.getElementByClass('modal'), false);
+  goog.style.showElement(this.modal_, false);
   goog.style.showElement(goog.dom.getElementByClass('modal-backdrop'), false);
 };
