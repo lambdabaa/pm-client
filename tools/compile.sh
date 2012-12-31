@@ -43,7 +43,7 @@ function build_less {
   files="$files $THIRD_PARTY/bootstrap/less/bootstrap.less"
   files="$files $THIRD_PARTY/bootstrap/less/responsive.less"
   cat $files > $LESS_SRC
-  lessc --strict-imports --verbose --include-path=$LESS_INCLUDE $LESS_SRC $LESS_DST
+  lessc --strict-imports --verbose --include-path=$LESS_INCLUDE $LESS_SRC $LESS_DST -O2 --yui-compress
   log_build_results $LESS_DST
   echo ""
 }
